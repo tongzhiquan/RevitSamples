@@ -1,0 +1,11 @@
+﻿<RevitAddIns>
+    <AddIn Type="Command">
+        <Name>FaceExtrusion</Name>
+        <Assembly>FaceExtrusion/FaceExtrusion.dll</Assembly>
+        <AddInId>B0000408-3DD1-4DFB-9D0F-E6FB71D611F9</AddInId>
+        <FullClassName>FaceExtrusion.Commands.Command</FullClassName>
+        <Text>FaceExtrusion</Text>
+        <VendorId>Development</VendorId>
+        <VendorDescription></VendorDescription>
+    </AddIn>
+</RevitAddIns>
