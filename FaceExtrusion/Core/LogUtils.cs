@@ -22,7 +22,11 @@ namespace FaceExtrusion.Core
                 .WriteTo.Async(a => a.File(
                     path: Path.Combine(logPath, "log-.txt"),  // 日志文件路径
                     rollingInterval: RollingInterval.Hour,  // 按小时滚动
+#if DEBUG
+                    restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Debug,  // 最低记录级别
+#else
                     restrictedToMinimumLevel: Serilog.Events.LogEventLevel.Information,  // 最低记录级别
+#endif
                     retainedFileCountLimit: 10,  // 保留文件数量
                     outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss} [{Level:u3}] {Message:lj}{NewLine}{Exception}"  // 输出模板
                     ))

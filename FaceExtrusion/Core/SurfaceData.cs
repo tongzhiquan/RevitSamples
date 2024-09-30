@@ -57,8 +57,13 @@ namespace FaceExtrusion.Core
             XYZ origin = transform.OfPoint(surface.Origin);
             XYZ xDir = transform.OfVector(surface.XDir);
             XYZ yDir = transform.OfVector(surface.YDir);
+            XYZ axis = transform.OfVector(surface.Axis);
 
-            Frame frame = new Frame(origin, xDir, yDir, xDir.CrossProduct(yDir));
+            Log.Debug($"origin:{origin}, xDir:{xDir}, yDir:{yDir}, axis:{axis}");
+            Log.Debug($"cross_xy: {xDir.CrossProduct(yDir)}");
+            Log.Debug("\tused axis!\r\n");
+
+            Frame frame = new Frame(origin, xDir, yDir, axis);
 
             CylindricalSurface cylindricalSurface = CylindricalSurface.Create(frame, radius);
 
@@ -79,8 +84,14 @@ namespace FaceExtrusion.Core
             double angle = surface.HalfAngle;
             XYZ xDir = transform.OfVector(surface.XDir);
             XYZ yDir = transform.OfVector(surface.YDir);
+            XYZ axis = transform.OfVector(surface.Axis);
 
-            Frame frame = new Frame(origin, xDir, yDir, xDir.CrossProduct(yDir));
+            Log.Debug($"origin:{origin}, xDir:{xDir}, yDir:{yDir}, axis:{axis}");
+            Log.Debug($"cross_xy: {xDir.CrossProduct(yDir)}");
+            Log.Debug("\tused axis!\r\n");
+
+            //Frame frame = new Frame(origin, xDir, yDir, xDir.CrossProduct(yDir));
+            Frame frame = new Frame(origin, xDir, yDir, axis);
 
             ConicalSurface conicalSurface = ConicalSurface.Create(frame, angle);
 
@@ -103,9 +114,13 @@ namespace FaceExtrusion.Core
             XYZ origin = transform.OfPoint(surface.Origin);
             XYZ xDir = transform.OfVector(surface.XDir);
             XYZ yDir = transform.OfVector(surface.YDir);
+            XYZ axis = transform.OfVector(surface.Axis);
 
-            Frame frame = new Frame(origin, xDir, yDir, xDir.CrossProduct(yDir));
+            Log.Debug($"origin:{origin}, xDir:{xDir}, yDir:{yDir}, axis:{axis}");
+            Log.Debug($"cross_xy: {xDir.CrossProduct(yDir)}");
+            Log.Debug("\tused axis!\r\n");
 
+            Frame frame = new Frame(origin, xDir, yDir, axis);
 
             Surface revolvedSurface = RevolvedSurface.Create(frame, newCurve);
 
@@ -124,13 +139,13 @@ namespace FaceExtrusion.Core
             bool matches = face.OrientationMatchesSurfaceOrientation;
 
             Curve curve, curve1, curve2;
-            XYZ point;
+            XYZ point = null;
 
             curve1 = surface.GetFirstProfileCurve();
             curve2 = surface.GetSecondProfileCurve();
 
-            point = surface.GetFirstProfilePoint();
-            point ??= surface.GetSecondProfilePoint();
+            if (surface.HasFirstProfilePoint()) { point = surface.GetFirstProfilePoint(); }
+            if (surface.HasSecondProfilePoint()) { point = surface.GetSecondProfilePoint(); }
 
             Surface ruledSurface;
 
@@ -186,5 +201,4 @@ namespace FaceExtrusion.Core
 
         #endregion Create With Face
     }
-
 }

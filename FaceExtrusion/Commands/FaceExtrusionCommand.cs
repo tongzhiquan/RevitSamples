@@ -29,6 +29,8 @@ namespace FaceExtrusion.Commands
             Reference reference = this.Selection.PickObject(ObjectType.Face);
             Element element = this.Document.GetElement(reference);
             Face face = element.GetGeometryObjectFromReference(reference) as Face;
+            TaskDialog.Show("FaceType", $"{face.GetType().Name}");
+
 
             //
 
@@ -49,6 +51,8 @@ namespace FaceExtrusion.Commands
 
         private Solid CreateExtrusionGeometryWithFace(Face face, XYZ extrusionDir, double extrusionDist)
         {
+            Log.Debug($"Face Type: {face.GetType().Name}\r\n");
+
             // TODO：方向有要求，需要是向外侧
             extrusionDir = extrusionDir.Normalize();
             Transform transform = Transform.CreateTranslation(extrusionDir * extrusionDist);
@@ -86,6 +90,8 @@ namespace FaceExtrusion.Commands
             }
 
             #endregion 基础数据
+
+
 
             #region Brep
 
@@ -134,9 +140,12 @@ namespace FaceExtrusion.Commands
 
             // bottom
             {
+                Log.Debug($"========================Botton Face========================");
                 for (int i = curveCount - 1; i >= 0; i--)
                 {
-                    builder.AddCoEdge(loopId_Bottom, edgeIds_Bottom[i], true);
+                    this.LogSurfaceAndCurve(surface_base, curves_base[i]);
+
+                    builder.AddCoEdge(loopId_Bottom, edgeIds_Bottom[i], true); // 面需要翻转，组成面的轮廓，需要遵循右手定则
                 }
                 builder.FinishLoop(loopId_Bottom);
                 builder.FinishFace(faceId_Bottom);
@@ -144,9 +153,12 @@ namespace FaceExtrusion.Commands
 
             // top
             {
+                Log.Debug($"========================Top Face========================");
                 for (int i = 0; i < curveCount; i++)
                 {
-                    builder.AddCoEdge(loopId_Top, edgeIds_Top[i], false);  // 面需要翻转，组成面的轮廓，需要遵循右手定则
+                    this.LogSurfaceAndCurve(surface_new, curves_new[i]);
+
+                    builder.AddCoEdge(loopId_Top, edgeIds_Top[i], false);
                 }
                 builder.FinishLoop(loopId_Top);
                 builder.FinishFace(faceId_Top);
@@ -154,8 +166,17 @@ namespace FaceExtrusion.Commands
 
             // side
             {
+                Log.Debug($"========================Side Face========================");
+
                 for (int i = 0, loopCount = loopIds_Side.Count; i < loopCount; i++)
                 {
+                    #region Log
+
+                    Log.Debug($"===========Side Face {i}===========");
+                    this.LogSurfaceAndCurve(surfaces_side[i], curves_side[i]);
+
+                    #endregion Log
+
                     BRepBuilderGeometryId loopId = loopIds_Side[i];
                     builder.AddCoEdge(loopId, edgeIds_Bottom[i], false);
                     builder.AddCoEdge(loopId, edgeIds_Side[(i + 1) % loopCount], false);
@@ -186,8 +207,29 @@ namespace FaceExtrusion.Commands
             //{
             //    TaskDialog.Show("BrepBuild", "创建失败");
             //}
-
             return solid;
+        }
+
+        private void LogSurfaceAndCurve(Surface surface, Curve curve)
+        {
+            Log.Debug($"Surface Type: {surface.GetType().Name}");
+
+            IList<XYZ> points = curve.Tessellate();
+            Log.Debug($"Curve Type: {curve.GetType().Name}\t\tCurve Points Count: {points.Count}");
+            for (int j = 0; j < points.Count; j++)
+            {
+                XYZ point = points[j];
+                try
+                {
+                    surface.Project(point, out UV uv, out double dis);
+                    Log.Debug($"Point [{j}]: {point}\tUV: {uv}\t  Dis: {dis.Round()}");
+                    if (dis.Round().Abs() > 1e-6) { Log.Error("\t\tThe Curve did not fall on the surface!"); }
+                }
+                catch
+                {
+                    Log.Debug($"Point [{j}]: {point}\t\t can't ptoject");
+                }
+            }
         }
     }
 }
