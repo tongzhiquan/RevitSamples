@@ -31,7 +31,6 @@ namespace FaceExtrusion.Commands
             Face face = element.GetGeometryObjectFromReference(reference) as Face;
             TaskDialog.Show("FaceType", $"{face.GetType().Name}");
 
-
             //
 
             Solid solid = this.CreateExtrusionGeometryWithFace(face, XYZ.BasisZ, 1);
@@ -51,7 +50,13 @@ namespace FaceExtrusion.Commands
 
         private Solid CreateExtrusionGeometryWithFace(Face face, XYZ extrusionDir, double extrusionDist)
         {
-            Log.Debug($"Face Type: {face.GetType().Name}\r\n");
+            // log face info
+            UV faceBoundingCenter = face.GetBoundingCenter();
+            Transform faceDerivatives = face.ComputeDerivatives(faceBoundingCenter);
+            Log.Debug($"Face Type: {face.GetType().Name}");
+            Log.Debug($"Center UV: {faceBoundingCenter}");
+            Log.Debug($"Origin: {faceDerivatives.Origin}");
+            Log.Debug($"BaseX: {faceDerivatives.BasisX}, BaseY: {faceDerivatives.BasisY}, BaseZ: {faceDerivatives.BasisZ}\r\n");
 
             // TODO：方向有要求，需要是向外侧
             extrusionDir = extrusionDir.Normalize();
@@ -64,6 +69,8 @@ namespace FaceExtrusion.Commands
             // 面
             Surface surface_base = face.GetSurface();
             Surface surface_new = surfaceData.Surface;
+            Log.Debug($"base surface：{BRepBuilder.IsPermittedSurfaceType(surface_base)}");
+            Log.Debug($"new surface：{BRepBuilder.IsPermittedSurfaceType(surface_new)}");
 
             // 边
             // TODO: 多轮廓面
@@ -87,17 +94,17 @@ namespace FaceExtrusion.Commands
 
                 Surface surface_side = RuledSurface.Create(curve_base, curve_new);
                 surfaces_side.Add(surface_side);
+                Log.Debug($"surfaces_side {i}：{BRepBuilder.IsPermittedSurfaceType(surface_side)}");
             }
 
             #endregion 基础数据
-
-
 
             #region Brep
 
             // 添加BRep
 
             BRepBuilder builder = new BRepBuilder(BRepType.Solid);
+            builder.SetAllowShortEdges();
 
             // 1. surface id
             BRepBuilderGeometryId faceId_Bottom = builder.AddFace(BRepBuilderSurfaceGeometry.Create(surface_base, null), true);  // 基础面方向需要翻转
@@ -167,15 +174,17 @@ namespace FaceExtrusion.Commands
             // side
             {
                 Log.Debug($"========================Side Face========================");
-
                 for (int i = 0, loopCount = loopIds_Side.Count; i < loopCount; i++)
                 {
-                    #region Log
-
                     Log.Debug($"===========Side Face {i}===========");
+                    Log.Debug($"curves_base {i}");
+                    this.LogSurfaceAndCurve(surfaces_side[i], curves_base[i]);
+                    Log.Debug($"curves_side {(i + 1) % loopCount}");
+                    this.LogSurfaceAndCurve(surfaces_side[i], curves_side[(i + 1) % loopCount]);
+                    Log.Debug($"curves_new {i}");
+                    this.LogSurfaceAndCurve(surfaces_side[i], curves_new[i]);
+                    Log.Debug($"curves_side {i}");
                     this.LogSurfaceAndCurve(surfaces_side[i], curves_side[i]);
-
-                    #endregion Log
 
                     BRepBuilderGeometryId loopId = loopIds_Side[i];
                     builder.AddCoEdge(loopId, edgeIds_Bottom[i], false);
@@ -191,15 +200,17 @@ namespace FaceExtrusion.Commands
                 }
             }
 
-            BRepBuilderOutcome buildResult = builder.Finish();
+            builder.AllowRemovalOfProblematicFaces();
+            bool removed = builder.RemovedSomeFaces();
+            builder.Finish();
 
-            TaskDialog.Show("BrepBuild", buildResult.ToString());
+            TaskDialog.Show("BrepBuild", $"removed: {removed}, builder: {builder.IsResultAvailable()}");
 
             #endregion Brep
 
             Solid solid = null;
 
-            //if (buildResult == BRepBuilderOutcome.Success)
+            //if (builder.IsResultAvailable())
             //{
             solid = builder.GetResult();
             //}
@@ -207,6 +218,7 @@ namespace FaceExtrusion.Commands
             //{
             //    TaskDialog.Show("BrepBuild", "创建失败");
             //}
+
             return solid;
         }
 

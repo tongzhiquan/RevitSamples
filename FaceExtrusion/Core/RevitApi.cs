@@ -46,7 +46,7 @@ namespace FaceExtrusion.Core
             //获取实体
             FillPatternElement fp = fillFilter.First(m => (m as FillPatternElement).GetFillPattern().IsSolidFill) as FillPatternElement;
             OverrideGraphicSettings ogs = new OverrideGraphicSettings();
-            
+
             //填充图案
             ogs.SetProjectionFillPatternId(fp.Id); //ogs.SetSurfaceForegroundPatternId(fp.Id);
             //颜色

@@ -1,0 +1,11 @@
+﻿<RevitAddIns>
+    <AddIn Type="Command">
+        <Name>SequentialSelector</Name>
+        <Assembly>SequentialSelector/SequentialSelector.dll</Assembly>
+        <AddInId>A098B27F-2FB2-4E72-9520-AB2CA7708BC8</AddInId>
+        <FullClassName>SequentialSelector.Commands.Command</FullClassName>
+        <Text>SequentialSelector</Text>
+        <VendorId>Development</VendorId>
+        <VendorDescription></VendorDescription>
+    </AddIn>
+</RevitAddIns>
