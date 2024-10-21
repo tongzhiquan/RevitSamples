@@ -74,6 +74,7 @@ namespace FaceExtrusion.Core
             return new SurfaceData(cylindricalSurface, curveloops, matches);
         }
 
+        // HACK: 圆锥面无法生成，原因未知
         public static SurfaceData CreateWithConicalFace(ConicalFace face, Transform transform)
         {
             // surface
@@ -102,6 +103,7 @@ namespace FaceExtrusion.Core
             return new SurfaceData(conicalSurface, curveloops, matches);
         }
 
+        // HACK：非类圆锥的旋转面无法生成，原因未知
         public static SurfaceData CreateWithRevolvedFace(RevolvedFace face, Transform transform)
         {
             // surface
@@ -131,7 +133,7 @@ namespace FaceExtrusion.Core
             return new SurfaceData(revolvedSurface, curveloops, matches);
         }
 
-        // TODO: 存在反向问题
+        // FIXME: 存在反向问题
         public static SurfaceData CreateWithRuledFace(RuledFace face, Transform transform)
         {
             // surface
@@ -174,6 +176,7 @@ namespace FaceExtrusion.Core
             return new SurfaceData(ruledSurface, curveloops, matches);
         }
 
+        // TODO: HermiteFace
         //public static SurfaceData CreateWithHermiteFace(HermiteFace face, Transform transform)
         //{
         //    // surface

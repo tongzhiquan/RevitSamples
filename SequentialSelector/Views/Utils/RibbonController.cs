@@ -3,7 +3,6 @@ using System.Windows;
 using System.Windows.Controls;
 using UIFramework;
 
-
 namespace SequentialSelector.Views.Utils
 {
     // https://github.com/atomatiq/OptionsBar/blob/master/OptionsBar/Views/Utils/RibbonController.cs

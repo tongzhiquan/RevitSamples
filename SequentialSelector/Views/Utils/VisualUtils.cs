@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.Diagnostics;
+using System.Windows;
 using System.Windows.Media;
 
 namespace SequentialSelector.Views.Utils
@@ -27,6 +28,7 @@ namespace SequentialSelector.Views.Utils
             for (int i = 0; i < VisualTreeHelper.GetChildrenCount(element); i++)
             {
                 FrameworkElement childElement = (FrameworkElement)VisualTreeHelper.GetChild(element, i);
+                Debug.Print(childElement.Name + "  " + childElement.GetType().Name);
                 if (childElement is T child)
                     if (childElement.Name == name)
                         return child;

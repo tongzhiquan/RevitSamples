@@ -6,8 +6,8 @@ namespace SequentialSelector.Views
     {
         public SequentialSelectorView(SequentialSelectorViewModel viewModel)
         {
-            InitializeComponent();
-            DataContext = viewModel;
+            this.DataContext = viewModel;
+            this.InitializeComponent();
         }
     }
 }
