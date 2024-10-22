@@ -2,6 +2,7 @@
 using Autodesk.Revit.DB;
 using Autodesk.Revit.UI;
 using Autodesk.Revit.UI.Selection;
+using SequentialSelector.Core;
 using SequentialSelector.ViewModels;
 using SequentialSelector.Views;
 using SequentialSelector.Views.Utils;
@@ -24,15 +25,51 @@ namespace SequentialSelector.Commands
             this.Document = this.UIDocument.Document;
             this.Selection = this.UIDocument.Selection;
 
+            SequentialSelectorView view = this.SetupSequentialSelector();
+            SequentialSelectorViewModel vm = (SequentialSelectorViewModel)view.DataContext;
 
             try
             {
-                SequentialSelectorView view = this.SetupSequentialSelector();
-                this.Selection.PickObject(ObjectType.Element);
+                while (true)
+                {
+                    Reference referance = this.Selection.PickObject(ObjectType.Element);
+
+                    Element element = this.Document.GetElement(referance);
+                    if (vm.SelectElement(referance.ElementId.Value))
+                    {
+                        RevitApi.ChangeElementColor(
+                            element,
+                            new Color(92, 129, 212),
+                            new Color(0, 0, 250),
+                            25);
+                    }
+                    else
+                    {
+                        RevitApi.ResetElementColor(element);
+                    }
+                }
+
             }
             catch (Autodesk.Revit.Exceptions.OperationCanceledException)
             {
                 // Do nothing
+
+                var elementIDs = vm.GetElementIds();
+
+                if (elementIDs.Count > 0)
+                {
+                    string sequence = "";
+
+                    foreach (var elementId in elementIDs)
+                    {
+                        Element element = this.Document.GetElement(new ElementId(elementId));
+                        RevitApi.ResetElementColor(element);
+                        sequence += element.Name + "\n";
+                    }
+                    elementIDs.Clear();
+
+                    TaskDialog.Show("Info", sequence);
+                }
             }
             finally
             {
@@ -49,7 +86,8 @@ namespace SequentialSelector.Commands
             {
                 IsMultiple = true,
                 IsCancelEnabled = true,
-                IsPreviousEnabled = true
+                IsPreviousEnabled = true,
+                IsCheckboxEnabled = true
             };
 
             SequentialSelectorView view = new SequentialSelectorView(viewModel);
@@ -57,13 +95,6 @@ namespace SequentialSelector.Commands
             RibbonController.ShowOptionsBar(view);
             return view;
         }
-
-
-        //private List<Element> SelectElement()
-        //{
-        //}
-
-
 
     }
 }

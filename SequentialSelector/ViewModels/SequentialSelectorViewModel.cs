@@ -1,36 +1,39 @@
 ﻿using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SequentialSelector.Views.Utils;
-using System.Drawing.Drawing2D;
 
 namespace SequentialSelector.ViewModels
 {
     public sealed partial class SequentialSelectorViewModel : ObservableObject
     {
-        private List<int> SelectedElementIDs { get; set; }
+        private List<long> SelectedElementIDs { get; set; } = [];
 
         [ObservableProperty]
         private bool isMultiple;
+
         [ObservableProperty]
         private bool isCheckboxEnabled;
+
         [ObservableProperty]
         private bool isPreviousEnabled;
+
         [ObservableProperty]
         private bool isCancelEnabled;
 
         [RelayCommand]
         private void Previous()
         {
-            // TODO 触发ESC
-            
+            // HACK: 触发ESC
+            KeySimulator.PressEscape();
+            RibbonController.HideOptionsBar();
         }
 
         [RelayCommand]
         private void Cancel()
         {
+            KeySimulator.PressEscape();
             RibbonController.HideOptionsBar();
         }
-
 
         [RelayCommand]
         private void CheckBoxChanged()
@@ -47,18 +50,20 @@ namespace SequentialSelector.ViewModels
             }
         }
 
-
-        public void SelectElement(int elementId)
+        public bool SelectElement(long elementId)
         {
+            bool isSelected = false;
+
             if (this.SelectedElementIDs.Contains(elementId))
             {
                 this.SelectedElementIDs.Remove(elementId);
+                isSelected = false;
             }
             else
             {
                 this.SelectedElementIDs.Add(elementId);
+                isSelected = true;
             }
-
 
             if (this.SelectedElementIDs.Count > 0)
             {
@@ -68,9 +73,11 @@ namespace SequentialSelector.ViewModels
             {
                 this.IsCheckboxEnabled = true;
             }
+
+            return isSelected;
         }
 
-        public List<int> GetElementIds()
+        public List<long> GetElementIds()
         {
             return this.SelectedElementIDs;
         }

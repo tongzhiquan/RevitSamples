@@ -4,10 +4,11 @@
             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
             xmlns:viewModel="clr-namespace:SequentialSelector.ViewModels"
-            Width="160"
+            Width="5000"
             Height="26"
+            HorizontalAlignment="Left"
             d:DataContext="{d:DesignInstance viewModel:SequentialSelectorViewModel}"
-            Background="#f6f6f6"
+            Background="#f5f5f5"
             Orientation="Horizontal"
             mc:Ignorable="d">
 
@@ -18,7 +19,7 @@
               Command="{Binding CheckBoxChangedCommand}"
               Content="多个"
               IsChecked="{Binding IsMultiple}"
-              IsEnabled="{Binding IsCheckboxEnabled}" />
+              IsEnabled="{Binding IsCheckboxEnabled, Mode=TwoWay}" />
 
     <Button Width="32"
             Margin="5,2,5,2"

@@ -15,23 +15,25 @@ namespace SequentialSelector.Core
         /// <param name="g">G, [0,255]</param>
         /// <param name="b">B, [0,255]</param>
         /// <param name="t">Transparency, [0,100]</param>
-        [Obsolete]
-        public static void ChangeElementColor(Element element, byte r, byte g, byte b, int t)
+        /// <remarks>
+        /// 这个方法在 SubTransaction 中执行。
+        /// </remarks>
+        public static void ChangeElementColor(Element element, [CanBeNull] Color faceColor, [CanBeNull] Color lineColor, int t)
         {
             Document document = element.Document;
 
-            using Transaction ts = new(document, "Change Element Color");
+            //using SubTransaction ts = new(document);
+            using Transaction ts = new(document, "Change Elelment Color");
             ts.Start();
 
-            OverrideGraphicSettings overrideGraphicSettings = ElementColorOverrideGraphicSettings(document, new Color(r, g, b), t);
+            OverrideGraphicSettings overrideGraphicSettings = ElementColorOverrideGraphicSettings(document, faceColor, lineColor, t);
 
             document.ActiveView.SetElementOverrides(element.Id, overrideGraphicSettings);
 
             ts.Commit();
         }
 
-        [Obsolete]
-        private static OverrideGraphicSettings ElementColorOverrideGraphicSettings(Document document, Color color, int transparency)
+        private static OverrideGraphicSettings ElementColorOverrideGraphicSettings(Document document, [CanBeNull] Color faceColor, [CanBeNull] Color lineColor, int transparency)
         {
             FilteredElementCollector fillFilter = new FilteredElementCollector(document);
             fillFilter.OfClass(typeof(FillPatternElement));
@@ -40,23 +42,34 @@ namespace SequentialSelector.Core
             OverrideGraphicSettings overrideGraphicSettings = new OverrideGraphicSettings();
 
 #if R18
-            // 三维
             overrideGraphicSettings.SetProjectionFillPatternId(fp.Id);  // 使用这个弃用的方法，否则在Revit 2018中无效
-            overrideGraphicSettings.SetProjectionFillColor(color);
-
-            overrideGraphicSettings.SetSurfaceTransparency(transparency);
-
-            // 平面
+            if (faceColor != null) overrideGraphicSettings.SetProjectionFillColor(faceColor);
+            if (transparency >= 0 || transparency <= 100) overrideGraphicSettings.SetSurfaceTransparency(transparency);
+            if (lineColor != null) overrideGraphicSettings.SetProjectionLineColor(lineColor);
             overrideGraphicSettings.SetCutFillPatternId(fp.Id);
-            overrideGraphicSettings.SetCutFillColor(color);
+            if (faceColor != null) overrideGraphicSettings.SetCutFillColor(faceColor);
 #else
             overrideGraphicSettings.SetSurfaceForegroundPatternId(fp.Id);
-            overrideGraphicSettings.SetSurfaceForegroundPatternColor(color);
-            overrideGraphicSettings.SetSurfaceTransparency(transparency);
+            if (faceColor != null) overrideGraphicSettings.SetSurfaceForegroundPatternColor(faceColor);
+            if (transparency >= 0 || transparency <= 100) overrideGraphicSettings.SetSurfaceTransparency(transparency);
+            if (lineColor != null) overrideGraphicSettings.SetProjectionLineColor(lineColor);
             overrideGraphicSettings.SetCutForegroundPatternId(fp.Id);
-            overrideGraphicSettings.SetCutForegroundPatternColor(color);
+            if (faceColor != null) overrideGraphicSettings.SetCutForegroundPatternColor(faceColor);
 #endif
             return overrideGraphicSettings;
+        }
+
+        public static void ResetElementColor(Element element)
+        {
+            Document document = element.Document;
+
+            //using SubTransaction ts = new(document);
+            using Transaction ts = new(document, "Reset Elelment Color");
+            ts.Start();
+
+            document.ActiveView.SetElementOverrides(element.Id, new OverrideGraphicSettings());
+
+            ts.Commit();
         }
     }
 }
