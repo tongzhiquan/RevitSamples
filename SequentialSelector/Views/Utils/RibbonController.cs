@@ -17,7 +17,8 @@ namespace SequentialSelector.Views.Utils
             RootGrid = VisualUtils.FindVisualParent<Grid>(ComponentManager.Ribbon, "rootGrid");
             if (RootGrid is null) throw new InvalidOperationException("Cannot find root grid in Revit UI");
 
-            InternalToolPanel = VisualUtils.FindVisualChild<DialogBarControl>(RootGrid, string.Empty);
+            // FIXME: DialogBarControl 在 UIFramework 2019版本后才有
+            InternalToolPanel = VisualUtils.FindVisualChild<DialogBarControl>(RootGrid, string.Empty); 
             if (InternalToolPanel is null) throw new InvalidOperationException("Cannot find internal tool panel in Revit UI");
         }
 

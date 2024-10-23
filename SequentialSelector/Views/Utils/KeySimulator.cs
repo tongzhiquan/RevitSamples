@@ -2,7 +2,7 @@
 
 namespace SequentialSelector.Views.Utils
 {
-    internal class KeySimulator
+    internal static class KeySimulator
     {
         [DllImport("user32.dll", SetLastError = true)]
         private static extern void keybd_event(byte bVk, byte bScan, uint dwFlags, UIntPtr dwExtraInfo);

@@ -23,7 +23,7 @@ namespace SequentialSelector.ViewModels
         [RelayCommand]
         private void Previous()
         {
-            // HACK: 触发ESC
+            // 触发ESC
             KeySimulator.PressEscape();
             RibbonController.HideOptionsBar();
         }
@@ -31,6 +31,7 @@ namespace SequentialSelector.ViewModels
         [RelayCommand]
         private void Cancel()
         {
+            this.SelectedElementIDs.Clear();
             KeySimulator.PressEscape();
             RibbonController.HideOptionsBar();
         }
