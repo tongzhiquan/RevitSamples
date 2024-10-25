@@ -5,7 +5,7 @@ namespace SequentialSelector.Core
     /// <summary>
     ///     The class contains wrapping methods for working with the Revit API.
     /// </summary>
-    public static class RevitApi
+    internal static class RevitApi
     {
         /// <summary>
         /// 更改元素的颜色和透明度
@@ -18,12 +18,11 @@ namespace SequentialSelector.Core
         /// <remarks>
         /// 这个方法在 SubTransaction 中执行。
         /// </remarks>
-        public static void ChangeElementColor(Element element, [CanBeNull] Color faceColor, [CanBeNull] Color lineColor, int t)
+        public static void ChangeElementColor(Element element, Color faceColor, Color lineColor, int t)
         {
             Document document = element.Document;
 
-            //using SubTransaction ts = new(document);
-            using Transaction ts = new(document, "Change Elelment Color");
+            using SubTransaction ts = new(document);
             ts.Start();
 
             OverrideGraphicSettings overrideGraphicSettings = ElementColorOverrideGraphicSettings(document, faceColor, lineColor, t);
@@ -33,7 +32,7 @@ namespace SequentialSelector.Core
             ts.Commit();
         }
 
-        private static OverrideGraphicSettings ElementColorOverrideGraphicSettings(Document document, [CanBeNull] Color faceColor, [CanBeNull] Color lineColor, int transparency)
+        private static OverrideGraphicSettings ElementColorOverrideGraphicSettings(Document document, Color faceColor, Color lineColor, int transparency)
         {
             FilteredElementCollector fillFilter = new FilteredElementCollector(document);
             fillFilter.OfClass(typeof(FillPatternElement));
@@ -44,7 +43,7 @@ namespace SequentialSelector.Core
 #if R18
             overrideGraphicSettings.SetProjectionFillPatternId(fp.Id);  // 使用这个弃用的方法，否则在Revit 2018中无效
             if (faceColor != null) overrideGraphicSettings.SetProjectionFillColor(faceColor);
-            if (transparency >= 0 || transparency <= 100) overrideGraphicSettings.SetSurfaceTransparency(transparency);
+            if (transparency is >= 0 or <= 100) overrideGraphicSettings.SetSurfaceTransparency(transparency);
             if (lineColor != null) overrideGraphicSettings.SetProjectionLineColor(lineColor);
             overrideGraphicSettings.SetCutFillPatternId(fp.Id);
             if (faceColor != null) overrideGraphicSettings.SetCutFillColor(faceColor);
@@ -63,8 +62,7 @@ namespace SequentialSelector.Core
         {
             Document document = element.Document;
 
-            //using SubTransaction ts = new(document);
-            using Transaction ts = new(document, "Reset Elelment Color");
+            using SubTransaction ts = new(document);
             ts.Start();
 
             document.ActiveView.SetElementOverrides(element.Id, new OverrideGraphicSettings());

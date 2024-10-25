@@ -1,4 +1,5 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using Autodesk.Revit.DB;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using SequentialSelector.Views.Utils;
 
@@ -6,7 +7,8 @@ namespace SequentialSelector.ViewModels
 {
     public sealed partial class SequentialSelectorViewModel : ObservableObject
     {
-        private List<long> SelectedElementIDs { get; set; } = [];
+        private List<ElementId> SelectedElementIds { get; set; } = [];
+        public bool IsFinishBtnClicked { get; set; } = false;
 
         [ObservableProperty]
         private bool isMultiple;
@@ -15,14 +17,15 @@ namespace SequentialSelector.ViewModels
         private bool isCheckboxEnabled;
 
         [ObservableProperty]
-        private bool isPreviousEnabled;
+        private bool isFinishBtnEnabled;
 
         [ObservableProperty]
-        private bool isCancelEnabled;
+        private bool isCancelBtnEnabled;
 
         [RelayCommand]
-        private void Previous()
+        private void Finish()
         {
+            this.IsFinishBtnEnabled = true;
             // 触发ESC
             KeySimulator.PressEscape();
             RibbonController.HideOptionsBar();
@@ -31,7 +34,7 @@ namespace SequentialSelector.ViewModels
         [RelayCommand]
         private void Cancel()
         {
-            this.SelectedElementIDs.Clear();
+            this.SelectedElementIds.Clear();
             KeySimulator.PressEscape();
             RibbonController.HideOptionsBar();
         }
@@ -41,32 +44,32 @@ namespace SequentialSelector.ViewModels
         {
             if (this.IsMultiple)
             {
-                this.IsPreviousEnabled = true;
-                this.IsCancelEnabled = true;
+                this.IsFinishBtnEnabled = true;
+                this.IsCancelBtnEnabled = true;
             }
             else
             {
-                this.IsPreviousEnabled = false;
-                this.IsCancelEnabled = false;
+                this.IsFinishBtnEnabled = false;
+                this.IsCancelBtnEnabled = false;
             }
         }
 
-        public bool SelectElement(long elementId)
+        public bool SelectElement(ElementId elementId)
         {
-            bool isSelected = false;
+            bool hasSelected;
 
-            if (this.SelectedElementIDs.Contains(elementId))
+            if (this.SelectedElementIds.Contains(elementId))
             {
-                this.SelectedElementIDs.Remove(elementId);
-                isSelected = false;
+                this.SelectedElementIds.Remove(elementId);
+                hasSelected = false;
             }
             else
             {
-                this.SelectedElementIDs.Add(elementId);
-                isSelected = true;
+                this.SelectedElementIds.Add(elementId);
+                hasSelected = true;
             }
 
-            if (this.SelectedElementIDs.Count > 0)
+            if (this.SelectedElementIds.Count > 0)
             {
                 this.IsCheckboxEnabled = false;
             }
@@ -75,12 +78,12 @@ namespace SequentialSelector.ViewModels
                 this.IsCheckboxEnabled = true;
             }
 
-            return isSelected;
+            return hasSelected;
         }
 
-        public List<long> GetElementIds()
+        public List<ElementId> GetSelectedElementIds()
         {
-            return this.SelectedElementIDs;
+            return this.SelectedElementIds;
         }
     }
 }

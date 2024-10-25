@@ -9,6 +9,7 @@ namespace SequentialSelector.Views.Utils
 
         // 定义虚拟键码
         private const byte VK_ESCAPE = 0x1B;
+
         private const uint KEYEVENTF_KEYUP = 0x0002;
 
         public static void PressEscape()

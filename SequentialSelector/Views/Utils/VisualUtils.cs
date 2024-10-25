@@ -5,7 +5,7 @@ using System.Windows.Media;
 namespace SequentialSelector.Views.Utils
 {
     // https://github.com/atomatiq/OptionsBar/blob/master/OptionsBar/Views/Utils/VisualUtils.cs
-    public static class VisualUtils
+    internal static class VisualUtils
     {
         [CanBeNull]
         public static T FindVisualParent<T>(FrameworkElement element, string name) where T : FrameworkElement
