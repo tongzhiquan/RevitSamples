@@ -1,0 +1,11 @@
+﻿<RevitAddIns>
+    <AddIn Type="Command">
+        <Name>FamilyInstanceCut</Name>
+        <Assembly>FamilyInstanceCut/FamilyInstanceCut.dll</Assembly>
+        <AddInId>9C80A615-C2E4-4001-AFF5-DCFAD6077B72</AddInId>
+        <FullClassName>FamilyInstanceCut.Commands.Command</FullClassName>
+        <Text>FamilyInstanceCut</Text>
+        <VendorId>Development</VendorId>
+        <VendorDescription></VendorDescription>
+    </AddIn>
+</RevitAddIns>
